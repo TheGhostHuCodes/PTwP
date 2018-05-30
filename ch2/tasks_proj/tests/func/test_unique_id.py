@@ -17,7 +17,8 @@ def initialized_tasks_db(tmpdir):
     tasks.stop_tasks_db()
 
 
-@pytest.mark.skip(reason='misunderstood the API')
+@pytest.mark.skipif(
+    tasks.__version__ < '0.2.0', reason='not supported until version 0.2.0')
 def test_unique_id_1():
     """Calling unique_id() twice should return different numbers."""
     id_1 = tasks.unique_id()

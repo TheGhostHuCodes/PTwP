@@ -1,4 +1,5 @@
 *.swp
+.vscode/
 .pytest_cache/
 build/
 dist/

@@ -41,6 +41,6 @@ class TestUpdate():
             tasks.update(task_id={'dict instead': 1}, task=tasks.Task())
 
     def test_bad_task(self):
-        """A non-Task tas should raise an exception."""
+        """A non-Task task should raise an exception."""
         with pytest.raises(TypeError):
             tasks.update(task_id=1, task='not a task')

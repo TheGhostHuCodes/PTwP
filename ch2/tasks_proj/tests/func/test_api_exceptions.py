@@ -1,6 +1,20 @@
 import pytest
 
 import tasks
+from tasks import Task
+
+
+@pytest.fixture()
+def initialized_tasks_db(tmpdir):
+    """Connect to db before testing, disconnect after."""
+    # Setup: start db
+    tasks.start_tasks_db(str(tmpdir), 'tiny')
+
+    # This is where the testing happens.
+    yield
+
+    # Teardown: stop db
+    tasks.stop_tasks_db()
 
 
 def test_add_raises():
@@ -44,3 +58,10 @@ class TestUpdate():
         """A non-Task task should raise an exception."""
         with pytest.raises(TypeError):
             tasks.update(task_id=1, task='not a task')
+
+
+def test_add_task_with_already_set_id_raises_exception(initialized_tasks_db):
+    """Adding a task with an already used id should raise an exception."""
+    with pytest.raises(ValueError):
+        used_id = tasks.add(Task("Do something"))
+        tasks.add(Task("Do something else", id=used_id))

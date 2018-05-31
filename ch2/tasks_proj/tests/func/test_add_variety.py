@@ -26,3 +26,89 @@ def initialized_tasks_db(tmpdir):
     tasks.start_tasks_db(str(tmpdir), 'tiny')
     yield
     tasks.stop_tasks_db()
+
+
+@pytest.mark.parametrize('task', [
+    Task('sleep', done=True),
+    Task('wake', 'joey'),
+    Task('breathe', 'JOEY', True),
+    Task('exercise', 'JoEy', False)
+])
+def test_add_2(task):
+    """Demonstrate parametrize with one parameter."""
+    task_id = tasks.add(task)
+    t_from_db = tasks.get(task_id)
+    assert equivalent(t_from_db, task)
+
+
+@pytest.mark.parametrize('summary, owner, done', [
+    ('sleep', None, False),
+    ('wake', 'joey', False),
+    ('breathe', 'JOEY', True),
+    ('eat eggs', 'JoEy', False),
+])
+def test_add_3(summary, owner, done):
+    """Demonstrate parametrize with multiple parameters."""
+    task = Task(summary, owner, done)
+    task_id = tasks.add(task)
+    t_from_db = tasks.get(task_id)
+    assert equivalent(t_from_db, task)
+
+
+tasks_to_try = (
+    Task('sleep', done=True),
+    Task('wake', 'joey'),
+    Task('wake', 'joey'),
+    Task('breathe', 'JOEY', True),
+    Task('exercise', 'JoEy', False),
+)
+
+
+@pytest.mark.parametrize('task', tasks_to_try)
+def test_add_4(task):
+    """Slightly different take."""
+    task_id = tasks.add(task)
+    t_from_db = tasks.get(task_id)
+    assert equivalent(t_from_db, task)
+
+
+task_ids = [
+    'Task({},{},{})'.format(t.summary, t.owner, t.done) for t in tasks_to_try
+]
+
+
+@pytest.mark.parametrize('task', tasks_to_try, ids=task_ids)
+def test_add_5(task):
+    """Demonstrate ids."""
+    task_id = tasks.add(task)
+    t_from_db = tasks.get(task_id)
+    assert equivalent(t_from_db, task)
+
+
+@pytest.mark.parametrize('task', tasks_to_try, ids=task_ids)
+class TestAdd():
+    """Demonstrate parametrize and test classes."""
+
+    def test_equivalent(self, task):
+        """Similar test, just within a class."""
+        task_id = tasks.add(task)
+        t_from_db = tasks.get(task_id)
+        assert equivalent(t_from_db, task)
+
+    def test_valid_id(self, task):
+        """We can use the same data on multiple tests."""
+        task_id = tasks.add(task)
+        t_from_db = tasks.get(task_id)
+        assert t_from_db.id == task_id
+
+
+@pytest.mark.parametrize('task', [
+    pytest.param(Task('create'), id='just summary'),
+    pytest.param(Task('inspire', 'Michelle'), id='summary/owner'),
+    pytest.param(Task('encourage', 'Michelle', True), id='summary/owner/done'),
+])
+def test_add_6(task):
+    """Demonstrate pytest.param and id."""
+    task_id = tasks.add(task)
+    t_from_db = tasks.get(task_id)
+    assert equivalent(t_from_db, task)

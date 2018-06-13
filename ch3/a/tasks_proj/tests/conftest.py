@@ -47,3 +47,17 @@ def tasks_mult_per_owner():
         Task('Write some books', 'Daniel'),
         Task('Eat ice cream', 'Daniel'),
     )
+
+
+@pytest.fixture()
+def db_with_3_tasks(tasks_db, tasks_just_a_few):
+    """Connected db with 2 tasks. all unique."""
+    for t in tasks_just_a_few:
+        tasks.add(t)
+
+
+@pytest.fixture()
+def db_with_multi_per_owner(tasks_db, tasks_mult_per_owner):
+    """Connected db with 9 tasks, 3 owners, all with 3 tasks."""
+    for t in tasks_mult_per_owner:
+        tasks.add(t)
